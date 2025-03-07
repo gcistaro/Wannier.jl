@@ -18,9 +18,10 @@ function write_full_data(seedname)
     rescale_repmat(isym.gk) #not sure why this is needed (to check)
     f2i = fbz2ibz(nnkp.kpoints, isym.kpoints, isym.symops)
     println(f2i)
+
     #Eig
-    #eig = read_eig(seedname*".ieig")
-    #write_eig(f2i, eig, seedname*".eig")
+    ieig = read_eig(seedname*".ieig")
+    eig  = unfold_eig(ieig, f2i)
 
     #Amn
     A  = read_amn(seedname*".iamn")
@@ -37,6 +38,14 @@ function write_full_data(seedname)
     M, kpb_k, kpb_G = read_mmn(seedname*".immn")
     bvectors_cryst = to_crys(nnkp, Kstencil.bvectors)
     Mfull, kpb_kfull, kpb_Gfull = unfold_mmn(M, kpb_k, kpb_G, nnkp, isym, f2i, bvectors_cryst)
+
+
+    #check Eig with symwannier
+    eigpy = read_eig(seedname*".eig")
+    for ik in 1:size(f2i)[1]
+        i = findall( >(1.e-10), abs.(eigpy[ik]-eig[ik]))
+        println("ik = ", ik , "    " , i)
+    end 
 
 
 
@@ -262,4 +271,18 @@ function unfold_mmn(M, kpb_k, kpb_G, nnkp, isym, f2i, bvectors_cryst)
         end
     end
     return (; Mfull, kpb_kfull, kpb_Gfull)
+end
+
+
+function unfold_eig(ieig, f2i)
+    nkpoints_full = size(f2i)[1]
+    num_bands     = size(ieig[1])[1]
+    eig = [zeros(Float64, num_bands) for _ in 1:nkpoints_full ]
+
+    for ik_fbz in 1:nkpoints_full
+        ik_ibz = f2i[ik_fbz][1][1]
+        eig[ik_fbz] = ieig[ik_ibz]
+    end
+
+    return eig
 end
