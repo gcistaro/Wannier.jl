@@ -1,0 +1,131 @@
+
+     Program PW2WANNIER v.7.4 starts on  4Mar2025 at 10:28:55 
+        Git branch: Coulomb_me
+        Last git commit: 8cff1b83a366c37df53e620f08cdfebd9e082efc-dirty
+        Last git commit date: Tue Feb 18 10:53:49 2025 +0100
+        Last git commit subject: Solving bugs in get_coulomb
+
+     This program is part of the open-source Quantum ESPRESSO suite
+     for quantum simulation of materials; please cite
+         "P. Giannozzi et al., J. Phys.:Condens. Matter 21 395502 (2009);
+         "P. Giannozzi et al., J. Phys.:Condens. Matter 29 465901 (2017);
+         "P. Giannozzi et al., J. Chem. Phys. 152 154105 (2020);
+          URL http://www.quantum-espresso.org", 
+     in publications or presentations arising from this work. More details at
+     http://www.quantum-espresso.org/quote
+
+     Parallel version (MPI), running on     1 processors
+
+     MPI processes distributed on     1 nodes
+     53481 MiB available memory on the printing compute node when the environment starts
+
+
+     Reading nscf_save data
+
+     Reading xml data from directory:
+
+     ./out/GaAs.save/
+
+     IMPORTANT: XC functional enforced from input :
+     Exchange-correlation= PBE
+                           (   1   4   3   4   0   0   0)
+     Any further DFT definition will be discarded
+     Please, verify this is what you really want
+
+
+     G-vector sticks info
+     --------------------
+     sticks:   dense  smooth     PW     G-vecs:    dense   smooth      PW
+     Sum         583     559    163                 9409     8609    1411
+
+     Using Slab Decomposition
+
+     Reading collected, re-writing distributed wavefunctions
+
+      Spin CASE ( default = unpolarized )
+
+  Wannier mode is: standalone     
+
+  -----------------
+  *** Reading nnkp 
+  -----------------
+
+  Checking info from wannier.nnkp file
+
+  - Real lattice is ok
+  - Reciprocal lattice is ok
+  - K-points are ok
+  - Number of wannier functions is ok (  4)
+  - All guiding functions are given 
+
+  Projections:
+   -0.125000    0.125000    0.125000  0  1  1    1.000000
+    0.125000   -0.125000    0.125000  0  1  1    1.000000
+    0.125000    0.125000   -0.125000  0  1  1    1.000000
+   -0.125000   -0.125000   -0.125000  0  1  1    1.000000
+
+  Reading data about k-point neighbours 
+
+  All neighbours are found 
+
+  Opening pp-files 
+
+
+  --------------------------
+  *** Compute  A projections
+  --------------------------
+
+  Number of local k points =        3
+       1       2       3
+  AMN calculated
+
+  ---------------
+  *** Compute  M 
+  ---------------
+
+  MMN: iknum =        3
+       1       2       3
+
+  IBZ MMN calculated
+
+  -----------------------------------
+  *** Orbital terms are not computed 
+  -----------------------------------
+
+  -----------------------------------
+  *** SHC terms are not computed 
+  -----------------------------------
+
+  ----------------
+  *** Write bands 
+  ----------------
+
+
+  -----------------------------
+  *** Plot info is not printed 
+  -----------------------------
+
+  -----------------------------
+  *** Parity info is not printed 
+  -----------------------------
+
+  ------------
+  *** Stop pp 
+  ------------
+
+
+     init_pw2wan  :      0.45s CPU      0.61s WALL (       1 calls)
+     compute_amn  :      0.41s CPU      0.41s WALL (       1 calls)
+     compute_immn :      0.33s CPU      0.42s WALL (       1 calls)
+
+     Internal routines:
+
+     PW2WANNIER   :      1.20s CPU      1.47s WALL
+
+
+   This run was terminated on:  10:28:57   4Mar2025            
+
+=------------------------------------------------------------------------------=
+   JOB DONE.
+=------------------------------------------------------------------------------=
+

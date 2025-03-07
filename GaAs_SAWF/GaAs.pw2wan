@@ -1,0 +1,6 @@
+&inputpp
+    outdir='./out/'
+    prefix='GaAs',
+    seedname = 'GaAs'
+    irr_bz = .true.
+/

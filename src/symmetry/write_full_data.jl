@@ -36,168 +36,170 @@ function write_full_data(seedname)
     #Mmn
     M, kpb_k, kpb_G = read_mmn(seedname*".immn")
     bvectors_cryst = to_crys(nnkp, Kstencil.bvectors)
-    Mfull = unfold_mmn(M, kpb_k, kpb_G, nnkp, isym, f2i, bvectors_cryst)
+    Mfull, kpb_kfull, kpb_Gfull = unfold_mmn(M, kpb_k, kpb_G, nnkp, isym, f2i, bvectors_cryst)
 
 
 
-#check Amn with symwannier
-Apy = read_amn(seedname*".amn")
-for ik in 1:size(f2i)[1]
-    i = findall( >(1.e-10), abs.(Afull[ik]-Apy[ik]))
-    println("ik = ", ik , "    " , i)
-end 
+    #check Amn with symwannier
+    Apy = read_amn(seedname*".amn")
+    for ik in 1:size(f2i)[1]
+        i = findall( >(1.e-10), abs.(Afull[ik]-Apy[ik]))
+        println("ik = ", ik , "    " , i)
+    end 
 
 
 
-#check Mmn with symwannier
-Mpy, kpb_k, kpb_G = read_mmn(seedname*".mmn")
-for ik in 1:size(f2i)[1]
-    for ib in 1:8
-        i = findall( >(1.e-10), abs.(Mfull[ik][ib]-Mpy[ik][ib]))
-        println("ik = ", ik , "    " ,i)
-    end
-end 
+    #check Mmn with symwannier
+    Mpy, kpb_k, kpb_G = read_mmn(seedname*".mmn")
+    for ik in 1:size(f2i)[1]
+        for ib in 1:8
+            i = findall( >(1.e-10), abs.(Mfull[ik][ib]-Mpy[ik][ib]))
+            println("ik = ", ik , "    " ,i)
+        end
+    end 
 
 end
 
 
 
 function unfold_mmn(M, kpb_k, kpb_G, nnkp, isym, f2i, bvectors_cryst)
-    pydata = [[zeros(Int32, 6) for ib in 1:8] for ik in 1:8]
-    pydata[ 1 ][ 1 ] = [ 1 ,  2 ,  2 ,  1 ,  1 ,  2 ,  1 ]
-    pydata[ 1 ][ 2 ] = [ 2 ,  3 ,  2 ,  1 ,  3 ,  3 ,  3 ]
-    pydata[ 1 ][ 3 ] = [ 3 ,  5 ,  2 ,  1 ,  4 ,  5 ,  4 ]
-    pydata[ 1 ][ 4 ] = [ 4 ,  8 ,  2 ,  1 ,  2 ,  8 ,  2 ]
-    pydata[ 1 ][ 5 ] = [ 5 ,  2 ,  2 ,  1 ,  1 ,  2 ,  1 ]
-    pydata[ 1 ][ 6 ] = [ 6 ,  3 ,  2 ,  1 ,  3 ,  3 ,  3 ]
-    pydata[ 1 ][ 7 ] = [ 7 ,  5 ,  2 ,  1 ,  4 ,  5 ,  4 ]
-    pydata[ 1 ][ 8 ] = [ 8 ,  8 ,  2 ,  1 ,  2 ,  8 ,  2 ]
-    pydata[ 2 ][ 1 ] = [ 1 ,  1 ,  1 ,  1 ,  1 ,  1 ,  1 ]
-    pydata[ 2 ][ 2 ] = [ 2 ,  4 ,  3 ,  1 ,  1 ,  4 ,  1 ]
-    pydata[ 2 ][ 3 ] = [ 3 ,  6 ,  3 ,  1 ,  9 ,  6 ,  9 ]
-    pydata[ 2 ][ 4 ] = [ 4 ,  7 ,  3 ,  1 ,  5 ,  7 ,  5 ]
-    pydata[ 2 ][ 5 ] = [ 5 ,  1 ,  1 ,  1 ,  1 ,  1 ,  1 ]
-    pydata[ 2 ][ 6 ] = [ 6 ,  4 ,  3 ,  1 ,  1 ,  4 ,  1 ]
-    pydata[ 2 ][ 7 ] = [ 7 ,  6 ,  3 ,  1 ,  9 ,  6 ,  9 ]
-    pydata[ 2 ][ 8 ] = [ 8 ,  7 ,  3 ,  1 ,  5 ,  7 ,  5 ]
-    pydata[ 3 ][ 1 ] = [ 2 ,  4 ,  3 ,  3 ,  1 ,  4 ,  1 ]
-    pydata[ 3 ][ 2 ] = [ 1 ,  1 ,  1 ,  3 ,  1 ,  1 ,  1 ]
-    pydata[ 3 ][ 3 ] = [ 8 ,  7 ,  3 ,  3 ,  5 ,  7 ,  5 ]
-    pydata[ 3 ][ 4 ] = [ 7 ,  6 ,  3 ,  3 ,  9 ,  6 ,  9 ]
-    pydata[ 3 ][ 5 ] = [ 6 ,  4 ,  3 ,  3 ,  1 ,  4 ,  1 ]
-    pydata[ 3 ][ 6 ] = [ 5 ,  1 ,  1 ,  3 ,  1 ,  1 ,  1 ]
-    pydata[ 3 ][ 7 ] = [ 4 ,  7 ,  3 ,  3 ,  5 ,  7 ,  5 ]
-    pydata[ 3 ][ 8 ] = [ 3 ,  6 ,  3 ,  3 ,  9 ,  6 ,  9 ]
-    pydata[ 4 ][ 1 ] = [ 1 ,  3 ,  2 ,  1 ,  3 ,  3 ,  3 ]
-    pydata[ 4 ][ 2 ] = [ 2 ,  2 ,  2 ,  1 ,  1 ,  2 ,  1 ]
-    pydata[ 4 ][ 3 ] = [ 3 ,  8 ,  2 ,  1 ,  2 ,  8 ,  2 ]
-    pydata[ 4 ][ 4 ] = [ 4 ,  5 ,  2 ,  1 ,  4 ,  5 ,  4 ]
-    pydata[ 4 ][ 5 ] = [ 5 ,  3 ,  2 ,  1 ,  3 ,  3 ,  3 ]
-    pydata[ 4 ][ 6 ] = [ 6 ,  2 ,  2 ,  1 ,  1 ,  2 ,  1 ]
-    pydata[ 4 ][ 7 ] = [ 7 ,  8 ,  2 ,  1 ,  2 ,  8 ,  2 ]
-    pydata[ 4 ][ 8 ] = [ 8 ,  5 ,  2 ,  1 ,  4 ,  5 ,  4 ]
-    pydata[ 5 ][ 1 ] = [ 3 ,  6 ,  3 ,  4 ,  9 ,  6 ,  9 ]
-    pydata[ 5 ][ 2 ] = [ 8 ,  7 ,  3 ,  4 ,  5 ,  7 ,  5 ]
-    pydata[ 5 ][ 3 ] = [ 1 ,  1 ,  1 ,  4 ,  1 ,  1 ,  1 ]
-    pydata[ 5 ][ 4 ] = [ 6 ,  4 ,  3 ,  4 ,  1 ,  4 ,  1 ]
-    pydata[ 5 ][ 5 ] = [ 7 ,  6 ,  3 ,  4 ,  9 ,  6 ,  9 ]
-    pydata[ 5 ][ 6 ] = [ 4 ,  7 ,  3 ,  4 ,  5 ,  7 ,  5 ]
-    pydata[ 5 ][ 7 ] = [ 5 ,  1 ,  1 ,  4 ,  1 ,  1 ,  1 ]
-    pydata[ 5 ][ 8 ] = [ 2 ,  4 ,  3 ,  4 ,  1 ,  4 ,  1 ]
-    pydata[ 6 ][ 1 ] = [ 3 ,  8 ,  2 ,  9 ,  2 ,  5 ,  4 ]
-    pydata[ 6 ][ 2 ] = [ 2 ,  2 ,  2 ,  9 ,  1 ,  8 ,  2 ]
-    pydata[ 6 ][ 3 ] = [ 8 ,  5 ,  2 ,  9 ,  4 ,  2 ,  1 ]
-    pydata[ 6 ][ 4 ] = [ 5 ,  3 ,  2 ,  9 ,  3 ,  3 ,  3 ]
-    pydata[ 6 ][ 5 ] = [ 7 ,  8 ,  2 ,  9 ,  2 ,  5 ,  4 ]
-    pydata[ 6 ][ 6 ] = [ 6 ,  2 ,  2 ,  9 ,  1 ,  8 ,  2 ]
-    pydata[ 6 ][ 7 ] = [ 4 ,  5 ,  2 ,  9 ,  4 ,  2 ,  1 ]
-    pydata[ 6 ][ 8 ] = [ 1 ,  3 ,  2 ,  9 ,  3 ,  3 ,  3 ]
-    pydata[ 7 ][ 1 ] = [ 8 ,  5 ,  2 ,  5 ,  4 ,  8 ,  2 ]
-    pydata[ 7 ][ 2 ] = [ 2 ,  2 ,  2 ,  5 ,  1 ,  5 ,  4 ]
-    pydata[ 7 ][ 3 ] = [ 1 ,  3 ,  2 ,  5 ,  3 ,  3 ,  3 ]
-    pydata[ 7 ][ 4 ] = [ 7 ,  8 ,  2 ,  5 ,  2 ,  2 ,  1 ]
-    pydata[ 7 ][ 5 ] = [ 4 ,  5 ,  2 ,  5 ,  4 ,  8 ,  2 ]
-    pydata[ 7 ][ 6 ] = [ 6 ,  2 ,  2 ,  5 ,  1 ,  5 ,  4 ]
-    pydata[ 7 ][ 7 ] = [ 5 ,  3 ,  2 ,  5 ,  3 ,  3 ,  3 ]
-    pydata[ 7 ][ 8 ] = [ 3 ,  8 ,  2 ,  5 ,  2 ,  2 ,  1 ]
-    pydata[ 8 ][ 1 ] = [ 8 ,  7 ,  3 ,  2 ,  5 ,  7 ,  5 ]
-    pydata[ 8 ][ 2 ] = [ 3 ,  6 ,  3 ,  2 ,  9 ,  6 ,  9 ]
-    pydata[ 8 ][ 3 ] = [ 2 ,  4 ,  3 ,  2 ,  1 ,  4 ,  1 ]
-    pydata[ 8 ][ 4 ] = [ 5 ,  1 ,  1 ,  2 ,  1 ,  1 ,  1 ]
-    pydata[ 8 ][ 5 ] = [ 4 ,  7 ,  3 ,  2 ,  5 ,  7 ,  5 ]
-    pydata[ 8 ][ 6 ] = [ 7 ,  6 ,  3 ,  2 ,  9 ,  6 ,  9 ]
-    pydata[ 8 ][ 7 ] = [ 6 ,  4 ,  3 ,  2 ,  1 ,  4 ,  1 ]
-    pydata[ 8 ][ 8 ] = [ 1 ,  1 ,  1 ,  2 ,  1 ,  1 ,  1 ]
-
-sympy = [[zeros(5) for ib in 1:8] for ik in 1:8]
-
-sympy[ 1 ][ 1 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 1 ][ 2 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 1 ][ 3 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 1 ][ 4 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 1 ][ 5 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 1 ][ 6 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 1 ][ 7 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 1 ][ 8 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 2 ][ 1 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 2 ][ 2 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 2 ][ 3 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 2 ][ 4 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 2 ][ 5 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 2 ][ 6 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 2 ][ 7 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 2 ][ 8 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 3 ][ 1 ] =  [ 3 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 3 ][ 2 ] =  [ 3 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 3 ][ 3 ] =  [ 4 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 3 ][ 4 ] =  [ 2 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 3 ][ 5 ] =  [ 3 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 3 ][ 6 ] =  [ 3 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 3 ][ 7 ] =  [ 4 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 3 ][ 8 ] =  [ 2 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 4 ][ 1 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 4 ][ 2 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 4 ][ 3 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 4 ][ 4 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 4 ][ 5 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 4 ][ 6 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 4 ][ 7 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 4 ][ 8 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 5 ][ 1 ] =  [ 3 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 5 ][ 2 ] =  [ 2 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 5 ][ 3 ] =  [ 4 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 5 ][ 4 ] =  [ 4 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 5 ][ 5 ] =  [ 3 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 5 ][ 6 ] =  [ 2 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 5 ][ 7 ] =  [ 4 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 5 ][ 8 ] =  [ 4 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 6 ][ 1 ] =  [ 8 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 6 ][ 2 ] =  [ 8 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 6 ][ 3 ] =  [ 8 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 6 ][ 4 ] =  [ 8 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 6 ][ 5 ] =  [ 8 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 6 ][ 6 ] =  [ 8 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 6 ][ 7 ] =  [ 8 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 6 ][ 8 ] =  [ 8 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 7 ][ 1 ] =  [ 10 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 7 ][ 2 ] =  [ 10 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 7 ][ 3 ] =  [ 10 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 7 ][ 4 ] =  [ 10 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 7 ][ 5 ] =  [ 10 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 7 ][ 6 ] =  [ 10 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 7 ][ 7 ] =  [ 10 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 7 ][ 8 ] =  [ 10 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 8 ][ 1 ] =  [ 3 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 8 ][ 2 ] =  [ 4 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 8 ][ 3 ] =  [ 2 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 8 ][ 4 ] =  [ 2 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 8 ][ 5 ] =  [ 3 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 8 ][ 6 ] =  [ 4 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 8 ][ 7 ] =  [ 2 , 1 , 0.0 , 0.0 , 0.0 ]
-sympy[ 8 ][ 8 ] =  [ 2 , 1 , 0.0 , 0.0 , 0.0 ]
+#    pydata = [[zeros(Int32, 6) for ib in 1:8] for ik in 1:8]
+#    pydata[ 1 ][ 1 ] = [ 1 ,  2 ,  2 ,  1 ,  1 ,  2 ,  1 ]
+#    pydata[ 1 ][ 2 ] = [ 2 ,  3 ,  2 ,  1 ,  3 ,  3 ,  3 ]
+#    pydata[ 1 ][ 3 ] = [ 3 ,  5 ,  2 ,  1 ,  4 ,  5 ,  4 ]
+#    pydata[ 1 ][ 4 ] = [ 4 ,  8 ,  2 ,  1 ,  2 ,  8 ,  2 ]
+#    pydata[ 1 ][ 5 ] = [ 5 ,  2 ,  2 ,  1 ,  1 ,  2 ,  1 ]
+#    pydata[ 1 ][ 6 ] = [ 6 ,  3 ,  2 ,  1 ,  3 ,  3 ,  3 ]
+#    pydata[ 1 ][ 7 ] = [ 7 ,  5 ,  2 ,  1 ,  4 ,  5 ,  4 ]
+#    pydata[ 1 ][ 8 ] = [ 8 ,  8 ,  2 ,  1 ,  2 ,  8 ,  2 ]
+#    pydata[ 2 ][ 1 ] = [ 1 ,  1 ,  1 ,  1 ,  1 ,  1 ,  1 ]
+#    pydata[ 2 ][ 2 ] = [ 2 ,  4 ,  3 ,  1 ,  1 ,  4 ,  1 ]
+#    pydata[ 2 ][ 3 ] = [ 3 ,  6 ,  3 ,  1 ,  9 ,  6 ,  9 ]
+#    pydata[ 2 ][ 4 ] = [ 4 ,  7 ,  3 ,  1 ,  5 ,  7 ,  5 ]
+#    pydata[ 2 ][ 5 ] = [ 5 ,  1 ,  1 ,  1 ,  1 ,  1 ,  1 ]
+#    pydata[ 2 ][ 6 ] = [ 6 ,  4 ,  3 ,  1 ,  1 ,  4 ,  1 ]
+#    pydata[ 2 ][ 7 ] = [ 7 ,  6 ,  3 ,  1 ,  9 ,  6 ,  9 ]
+#    pydata[ 2 ][ 8 ] = [ 8 ,  7 ,  3 ,  1 ,  5 ,  7 ,  5 ]
+#    pydata[ 3 ][ 1 ] = [ 2 ,  4 ,  3 ,  3 ,  1 ,  4 ,  1 ]
+#    pydata[ 3 ][ 2 ] = [ 1 ,  1 ,  1 ,  3 ,  1 ,  1 ,  1 ]
+#    pydata[ 3 ][ 3 ] = [ 8 ,  7 ,  3 ,  3 ,  5 ,  7 ,  5 ]
+#    pydata[ 3 ][ 4 ] = [ 7 ,  6 ,  3 ,  3 ,  9 ,  6 ,  9 ]
+#    pydata[ 3 ][ 5 ] = [ 6 ,  4 ,  3 ,  3 ,  1 ,  4 ,  1 ]
+#    pydata[ 3 ][ 6 ] = [ 5 ,  1 ,  1 ,  3 ,  1 ,  1 ,  1 ]
+#    pydata[ 3 ][ 7 ] = [ 4 ,  7 ,  3 ,  3 ,  5 ,  7 ,  5 ]
+#    pydata[ 3 ][ 8 ] = [ 3 ,  6 ,  3 ,  3 ,  9 ,  6 ,  9 ]
+#    pydata[ 4 ][ 1 ] = [ 1 ,  3 ,  2 ,  1 ,  3 ,  3 ,  3 ]
+#    pydata[ 4 ][ 2 ] = [ 2 ,  2 ,  2 ,  1 ,  1 ,  2 ,  1 ]
+#    pydata[ 4 ][ 3 ] = [ 3 ,  8 ,  2 ,  1 ,  2 ,  8 ,  2 ]
+#    pydata[ 4 ][ 4 ] = [ 4 ,  5 ,  2 ,  1 ,  4 ,  5 ,  4 ]
+#    pydata[ 4 ][ 5 ] = [ 5 ,  3 ,  2 ,  1 ,  3 ,  3 ,  3 ]
+#    pydata[ 4 ][ 6 ] = [ 6 ,  2 ,  2 ,  1 ,  1 ,  2 ,  1 ]
+#    pydata[ 4 ][ 7 ] = [ 7 ,  8 ,  2 ,  1 ,  2 ,  8 ,  2 ]
+#    pydata[ 4 ][ 8 ] = [ 8 ,  5 ,  2 ,  1 ,  4 ,  5 ,  4 ]
+#    pydata[ 5 ][ 1 ] = [ 3 ,  6 ,  3 ,  4 ,  9 ,  6 ,  9 ]
+#    pydata[ 5 ][ 2 ] = [ 8 ,  7 ,  3 ,  4 ,  5 ,  7 ,  5 ]
+#    pydata[ 5 ][ 3 ] = [ 1 ,  1 ,  1 ,  4 ,  1 ,  1 ,  1 ]
+#    pydata[ 5 ][ 4 ] = [ 6 ,  4 ,  3 ,  4 ,  1 ,  4 ,  1 ]
+#    pydata[ 5 ][ 5 ] = [ 7 ,  6 ,  3 ,  4 ,  9 ,  6 ,  9 ]
+#    pydata[ 5 ][ 6 ] = [ 4 ,  7 ,  3 ,  4 ,  5 ,  7 ,  5 ]
+#    pydata[ 5 ][ 7 ] = [ 5 ,  1 ,  1 ,  4 ,  1 ,  1 ,  1 ]
+#    pydata[ 5 ][ 8 ] = [ 2 ,  4 ,  3 ,  4 ,  1 ,  4 ,  1 ]
+#    pydata[ 6 ][ 1 ] = [ 3 ,  8 ,  2 ,  9 ,  2 ,  5 ,  4 ]
+#    pydata[ 6 ][ 2 ] = [ 2 ,  2 ,  2 ,  9 ,  1 ,  8 ,  2 ]
+#    pydata[ 6 ][ 3 ] = [ 8 ,  5 ,  2 ,  9 ,  4 ,  2 ,  1 ]
+#    pydata[ 6 ][ 4 ] = [ 5 ,  3 ,  2 ,  9 ,  3 ,  3 ,  3 ]
+#    pydata[ 6 ][ 5 ] = [ 7 ,  8 ,  2 ,  9 ,  2 ,  5 ,  4 ]
+#    pydata[ 6 ][ 6 ] = [ 6 ,  2 ,  2 ,  9 ,  1 ,  8 ,  2 ]
+#    pydata[ 6 ][ 7 ] = [ 4 ,  5 ,  2 ,  9 ,  4 ,  2 ,  1 ]
+#    pydata[ 6 ][ 8 ] = [ 1 ,  3 ,  2 ,  9 ,  3 ,  3 ,  3 ]
+#    pydata[ 7 ][ 1 ] = [ 8 ,  5 ,  2 ,  5 ,  4 ,  8 ,  2 ]
+#    pydata[ 7 ][ 2 ] = [ 2 ,  2 ,  2 ,  5 ,  1 ,  5 ,  4 ]
+#    pydata[ 7 ][ 3 ] = [ 1 ,  3 ,  2 ,  5 ,  3 ,  3 ,  3 ]
+#    pydata[ 7 ][ 4 ] = [ 7 ,  8 ,  2 ,  5 ,  2 ,  2 ,  1 ]
+#    pydata[ 7 ][ 5 ] = [ 4 ,  5 ,  2 ,  5 ,  4 ,  8 ,  2 ]
+#    pydata[ 7 ][ 6 ] = [ 6 ,  2 ,  2 ,  5 ,  1 ,  5 ,  4 ]
+#    pydata[ 7 ][ 7 ] = [ 5 ,  3 ,  2 ,  5 ,  3 ,  3 ,  3 ]
+#    pydata[ 7 ][ 8 ] = [ 3 ,  8 ,  2 ,  5 ,  2 ,  2 ,  1 ]
+#    pydata[ 8 ][ 1 ] = [ 8 ,  7 ,  3 ,  2 ,  5 ,  7 ,  5 ]
+#    pydata[ 8 ][ 2 ] = [ 3 ,  6 ,  3 ,  2 ,  9 ,  6 ,  9 ]
+#    pydata[ 8 ][ 3 ] = [ 2 ,  4 ,  3 ,  2 ,  1 ,  4 ,  1 ]
+#    pydata[ 8 ][ 4 ] = [ 5 ,  1 ,  1 ,  2 ,  1 ,  1 ,  1 ]
+#    pydata[ 8 ][ 5 ] = [ 4 ,  7 ,  3 ,  2 ,  5 ,  7 ,  5 ]
+#    pydata[ 8 ][ 6 ] = [ 7 ,  6 ,  3 ,  2 ,  9 ,  6 ,  9 ]
+#    pydata[ 8 ][ 7 ] = [ 6 ,  4 ,  3 ,  2 ,  1 ,  4 ,  1 ]
+#    pydata[ 8 ][ 8 ] = [ 1 ,  1 ,  1 ,  2 ,  1 ,  1 ,  1 ]
+#
+#sympy = [[zeros(5) for ib in 1:8] for ik in 1:8]
+#
+#sympy[ 1 ][ 1 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 1 ][ 2 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 1 ][ 3 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 1 ][ 4 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 1 ][ 5 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 1 ][ 6 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 1 ][ 7 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 1 ][ 8 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 2 ][ 1 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 2 ][ 2 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 2 ][ 3 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 2 ][ 4 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 2 ][ 5 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 2 ][ 6 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 2 ][ 7 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 2 ][ 8 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 3 ][ 1 ] =  [ 3 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 3 ][ 2 ] =  [ 3 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 3 ][ 3 ] =  [ 4 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 3 ][ 4 ] =  [ 2 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 3 ][ 5 ] =  [ 3 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 3 ][ 6 ] =  [ 3 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 3 ][ 7 ] =  [ 4 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 3 ][ 8 ] =  [ 2 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 4 ][ 1 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 4 ][ 2 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 4 ][ 3 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 4 ][ 4 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 4 ][ 5 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 4 ][ 6 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 4 ][ 7 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 4 ][ 8 ] =  [ 1 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 5 ][ 1 ] =  [ 3 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 5 ][ 2 ] =  [ 2 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 5 ][ 3 ] =  [ 4 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 5 ][ 4 ] =  [ 4 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 5 ][ 5 ] =  [ 3 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 5 ][ 6 ] =  [ 2 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 5 ][ 7 ] =  [ 4 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 5 ][ 8 ] =  [ 4 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 6 ][ 1 ] =  [ 8 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 6 ][ 2 ] =  [ 8 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 6 ][ 3 ] =  [ 8 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 6 ][ 4 ] =  [ 8 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 6 ][ 5 ] =  [ 8 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 6 ][ 6 ] =  [ 8 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 6 ][ 7 ] =  [ 8 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 6 ][ 8 ] =  [ 8 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 7 ][ 1 ] =  [ 10 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 7 ][ 2 ] =  [ 10 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 7 ][ 3 ] =  [ 10 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 7 ][ 4 ] =  [ 10 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 7 ][ 5 ] =  [ 10 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 7 ][ 6 ] =  [ 10 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 7 ][ 7 ] =  [ 10 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 7 ][ 8 ] =  [ 10 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 8 ][ 1 ] =  [ 3 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 8 ][ 2 ] =  [ 4 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 8 ][ 3 ] =  [ 2 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 8 ][ 4 ] =  [ 2 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 8 ][ 5 ] =  [ 3 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 8 ][ 6 ] =  [ 4 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 8 ][ 7 ] =  [ 2 , 1 , 0.0 , 0.0 , 0.0 ]
+#sympy[ 8 ][ 8 ] =  [ 2 , 1 , 0.0 , 0.0 , 0.0 ]
 
 
     Mfull = [[zeros(ComplexF64, size(M[1][1])) for _ in 1:size(M[1])[1]] for _ in 1:size(nnkp.kpoints)[1]]
+    kpb_kfull = [[0 for _ in 1:size(M[1])[1]] for _ in 1:size(nnkp.kpoints)[1]]
+    kpb_Gfull = [[zeros(Float64, 3) for _ in 1:size(M[1])[1]] for _ in 1:size(nnkp.kpoints)[1]]
 
     println(size(M)[1], " ", size(M[1])[1])
     for ikf in 1:size(nnkp.kpoints)[1]
@@ -216,16 +218,19 @@ sympy[ 8 ][ 8 ] =  [ 2 , 1 , 0.0 , 0.0 , 0.0 ]
             bi = rotate(bf, isym.symops[isym.symops[isym_ikf].invs]) 
             ibi = find_strict(bi, bvectors_cryst)
             ikbi= find( ki + bi, nnkp.kpoints)
+
+            kpb_kfull[ikf][ibf] = ikbf
+            kpb_Gfull[ikf][ibf] = nnkp.kpoints[ikf] + bf - nnkp.kpoints[ikbf]  
             
             ikbi_ibz  = f2i[ikbi][1][1]            
             isym_ikbi = f2i[ikbi][1][2] #symmetry to get ki+bi in IBZ
             isym_ikbf = f2i[ikbf][1][2] #symmetry to get kf+bf in IBZ
 
-            if norm(pydata[ikf][ibf] - [ibi, ikbi, ikbi_ibz, isym_ikf, isym_ikbi, ikbf, isym_ikbf]) > 1.e-07
-                println(ikf, " ", ibf)
-                println(ibi, " ", ikbi, " " ,ikbi_ibz," ",isym_ikf,  " ", isym_ikbi, " " , ikbf, " " ,isym_ikbf)#isym_tot, " ", tDelta)
-                println(pydata[ikf][ibf])
-            end
+            #if norm(pydata[ikf][ibf] - [ibi, ikbi, ikbi_ibz, isym_ikf, isym_ikbi, ikbf, isym_ikbf]) > 1.e-07
+            #    println(ikf, " ", ibf)
+            #    println(ibi, " ", ikbi, " " ,ikbi_ibz," ",isym_ikf,  " ", isym_ikbi, " " , ikbf, " " ,isym_ikbf)#isym_tot, " ", tDelta)
+            #    println(pydata[ikf][ibf])
+            #end
 
 
 
@@ -242,7 +247,6 @@ sympy[ 8 ][ 8 ] =  [ 2 , 1 , 0.0 , 0.0 , 0.0 ]
             factor = 1#changes with spinors
 
             index_isymh = findall(<(1.e-06), abs.(isym.gk[ikbi_ibz].isym.-isym_h))[1]
-            print(index_isymh)
             if isym.symops[isym_ikbi].t_rev == 1
                 Mfull[ikf][ibf] = M[iki][ibi]*conj.(isym.gk[ikbi_ibz].h[index_isymh])*factor
             else
@@ -257,5 +261,5 @@ sympy[ 8 ][ 8 ] =  [ 2 , 1 , 0.0 , 0.0 , 0.0 ]
             Mfull[ikf][ibf] = Mfull[ikf][ibf]*exp(im*2.0*π*(dot(bi, isym.symops[isym_ikf].ft) + dot(kbi_ibz, tDelta)))
         end
     end
-    return Mfull
+    return (; Mfull, kpb_kfull, kpb_Gfull)
 end
