@@ -78,4 +78,8 @@ include("interpolation/fermi_energy.jl")
 
 # include("interpolation/magmom.jl")
 
+include("symmetry/symmetrize.jl")
+include("symmetry/write_full_data.jl")
+include("symmetry/rescale.jl")
+
 end
